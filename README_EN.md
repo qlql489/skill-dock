@@ -32,56 +32,9 @@ Skills from local folders, GitHub repos, or skill marketplaces all land in one c
 <a id="screenshots"></a>
 ## Screenshots
 
-<table>
-  <tr>
-    <td align="center" width="50%">
-      <img src="img/library.png" alt="Skill library" />
-      <br />
-      <b style="font-size: 16px;">Skill library: one library, shared by every agent</b>
-    </td>
-    <td align="center" width="50%">
-      <img src="img/skill-detail.png" alt="Skill detail" />
-      <br />
-      <b style="font-size: 16px;">Skill detail: description + per-agent toggles</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <img src="img/market.png" alt="Skill marketplaces" />
-      <br />
-      <b style="font-size: 16px;">Marketplaces: search & leaderboards</b>
-    </td>
-    <td align="center" width="50%">
-      <img src="img/agents.png" alt="Agents" />
-      <br />
-      <b style="font-size: 16px;">Agents: browse & manage every connected agent</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <img src="img/discover.png" alt="Local skills" />
-      <br />
-      <b style="font-size: 16px;">Local skills: adopt what's already on disk</b>
-    </td>
-    <td align="center" width="50%">
-      <img src="img/combos.png" alt="Groups" />
-      <br />
-      <b style="font-size: 16px;">Groups: apply a bundle of skills in one click</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <img src="img/update-preview.png" alt="Update preview" />
-      <br />
-      <b style="font-size: 16px;">Update preview: see the diff before applying</b>
-    </td>
-    <td align="center" width="50%">
-      <img src="img/settings.png" alt="Settings" />
-      <br />
-      <b style="font-size: 16px;">Settings: appearance, sync & app updates</b>
-    </td>
-  </tr>
-</table>
+<img src="img/main.png" alt="SkillDock main window: central skill library" width="960" />
+
+Captured with an isolated set of demo skills; no personal data is included.
 
 <a id="getting-started"></a>
 ## Getting Started

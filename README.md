@@ -32,56 +32,9 @@ SkillDock 是一个把散落在各个 AI Agent 目录里的技能（Skills）收
 <a id="界面预览"></a>
 ## 界面预览
 
-<table>
-  <tr>
-    <td align="center" width="50%">
-      <img src="img/library.png" alt="技能库" />
-      <br />
-      <b style="font-size: 16px;">技能库：一个库，所有 Agent 共用</b>
-    </td>
-    <td align="center" width="50%">
-      <img src="img/skill-detail.png" alt="技能详情" />
-      <br />
-      <b style="font-size: 16px;">技能详情：简介 + 逐 Agent 开关</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <img src="img/market.png" alt="技能市场" />
-      <br />
-      <b style="font-size: 16px;">技能市场：搜索与榜单</b>
-    </td>
-    <td align="center" width="50%">
-      <img src="img/agents.png" alt="Agents 管理" />
-      <br />
-      <b style="font-size: 16px;">Agents：浏览与管理所有接入的 Agent</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <img src="img/discover.png" alt="本机 skill 管理" />
-      <br />
-      <b style="font-size: 16px;">本机 skill 管理：纳入管理已散落的技能</b>
-    </td>
-    <td align="center" width="50%">
-      <img src="img/combos.png" alt="组合管理" />
-      <br />
-      <b style="font-size: 16px;">组合：一组技能一键应用</b>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <img src="img/update-preview.png" alt="更新预览" />
-      <br />
-      <b style="font-size: 16px;">更新预览：先看 diff，再决定是否更新</b>
-    </td>
-    <td align="center" width="50%">
-      <img src="img/settings.png" alt="设置" />
-      <br />
-      <b style="font-size: 16px;">设置：外观、同步与应用更新</b>
-    </td>
-  </tr>
-</table>
+<img src="img/main.png" alt="SkillDock 主界面：中央技能库" width="960" />
+
+使用隔离的示例技能集截取，不包含个人数据。
 
 <a id="快速开始"></a>
 ## 快速开始
