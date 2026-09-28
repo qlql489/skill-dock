@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.idea/
+.zcode/
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/
+
+# VitePress
+docs/.vitepress/cache/
+docs/.vitepress/dist/

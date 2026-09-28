@@ -1,0 +1,165 @@
+# Release build & publish. Triggered by pushing a `v*` tag.
+#
+# Prerequisites (one-time, see README「发布流程」):
+#   1. Generate an updater signing keypair:
+#        npx @tauri-apps/cli signer generate -w ~/.tauri/skill-dock.key
+#   2. Fill the public key into src-tauri/tauri.conf.json plugins.updater.pubkey
+#      and point the endpoint at this repo's latest.json.
+#   3. Add repo secrets:
+#        TAURI_SIGNING_PRIVATE_KEY           = contents of the private key file
+#        TAURI_SIGNING_PRIVATE_KEY_PASSWORD  = key password (may be empty)
+#
+# Flow: tag push → 3 build jobs (mac arm64 / mac x64 / win msi, all signed) →
+# publish job collects artifacts, generates latest.json (signature field is the
+# base64 of each .sig file's full content — that's what tauri-plugin-updater
+# expects), then creates the GitHub Release. The client endpoint
+# `.../releases/latest/download/latest.json` picks the new version up instantly.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch: # 手动触发仅用于验证构建,不发布 Release
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-14 # Apple Silicon
+            target: aarch64-apple-darwin
+            updater-arch: aarch64
+          - platform: macos-14 # Intel
+            target: x86_64-apple-darwin
+            updater-arch: x64
+          - platform: windows-2022 # Windows x64
+            target: x86_64-pc-windows-msvc
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build app
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: pnpm exec tauri build --target ${{ matrix.target }}
+
+      - name: Stage artifacts (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        env:
+          UPDATER_ARCH: ${{ matrix.updater-arch }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          BUNDLE="src-tauri/target/${{ matrix.target }}/release/bundle"
+          mkdir -p stage
+          cp "${BUNDLE}"/dmg/*.dmg "stage/SkillDock-v${VERSION}-macOS-${UPDATER_ARCH}.dmg"
+          cp "${BUNDLE}"/macos/*.app.tar.gz "stage/SkillDock_${UPDATER_ARCH}.app.tar.gz"
+          cp "${BUNDLE}"/macos/*.app.tar.gz.sig "stage/SkillDock_${UPDATER_ARCH}.app.tar.gz.sig"
+
+      - name: Stage artifacts (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          BUNDLE="src-tauri/target/x86_64-pc-windows-msvc/release/bundle"
+          mkdir -p stage
+          cp "${BUNDLE}"/msi/*.msi "stage/SkillDock-v${VERSION}-Windows.msi"
+          cp "${BUNDLE}"/msi/*.msi.sig "stage/SkillDock-v${VERSION}-Windows.msi.sig"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-${{ matrix.target }}
+          path: stage/*
+          if-no-files-found: error
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: artifacts-*
+          merge-multiple: true
+          path: stage
+
+      - name: Generate latest.json
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          REPO="${{ github.repository }}"
+          PUB_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          # tauri-plugin-updater expects the signature field to be the
+          # base64-encoding of the FULL .sig file content (see its
+          # verify_signature: base64_decode(signature) → minisign parse).
+          SIG_AARCH64="$(base64 -w0 "stage/SkillDock_aarch64.app.tar.gz.sig")"
+          SIG_X64="$(base64 -w0 "stage/SkillDock_x64.app.tar.gz.sig")"
+          SIG_WINDOWS="$(base64 -w0 "stage/SkillDock-v${VERSION}-Windows.msi.sig")"
+          BASE="https://github.com/${REPO}/releases/download/${GITHUB_REF_NAME}"
+          jq -n \
+            --arg version "$VERSION" \
+            --arg pub_date "$PUB_DATE" \
+            --arg sig_aarch64 "$SIG_AARCH64" \
+            --arg sig_x64 "$SIG_X64" \
+            --arg sig_windows "$SIG_WINDOWS" \
+            --arg url_aarch64 "$BASE/SkillDock_aarch64.app.tar.gz" \
+            --arg url_x64 "$BASE/SkillDock_x64.app.tar.gz" \
+            --arg url_windows "$BASE/SkillDock-v${VERSION}-Windows.msi" \
+            '{version: $version,
+              notes: "See the GitHub release notes for details.",
+              pub_date: $pub_date,
+              platforms: {
+                "darwin-aarch64": {signature: $sig_aarch64, url: $url_aarch64},
+                "darwin-x86_64":  {signature: $sig_x64,      url: $url_x64},
+                "windows-x86_64": {signature: $sig_windows,  url: $url_windows}
+              }}' > stage/latest.json
+          cat stage/latest.json
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: SkillDock ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            stage/*.dmg
+            stage/*.app.tar.gz
+            stage/*.app.tar.gz.sig
+            stage/*.msi
+            stage/*.msi.sig
+            stage/latest.json

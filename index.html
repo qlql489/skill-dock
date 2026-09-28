@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SkillDock</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body data-theme="light">
+    <!-- Title bar drag region (macOS Overlay) -->
+    <div class="titlebar" data-tauri-drag-region>
+      <span class="titlebar__title" id="titlebar-title">SkillDock</span>
+      <span class="titlebar__spacer"></span>
+      <span class="titlebar__path" id="state-path" title="数据目录"></span>
+    </div>
+
+    <div class="layout">
+      <!-- Left rail -->
+      <nav class="rail" aria-label="主导航">
+        <div class="rail__brand">
+          <img class="rail__brand-mark" src="/skill-dock-icon.png" alt="" aria-hidden="true" />
+          <span class="rail__brand-name">SkillDock</span>
+        </div>
+
+        <button class="rail__add-btn" id="rail-add-btn" title="添加来源">
+          <span class="icon" data-icon="add" data-size="16"></span>
+          <span>添加skills</span>
+        </button>
+
+        <button class="rail__btn" data-route="library" data-active="true">
+          <span class="icon" data-icon="library" data-size="16"></span>
+          <span class="rail__btn-label">中央技能库</span>
+          <span class="rail__btn-count" id="nav-count-library">0</span>
+        </button>
+        <button class="rail__btn" data-route="discover">
+          <span class="icon" data-icon="search" data-size="16"></span>
+          <span class="rail__btn-label">本机skill管理</span>
+        </button>
+        <button class="rail__btn" data-route="projects">
+          <span class="icon" data-icon="folder" data-size="16"></span>
+          <span class="rail__btn-label">项目skill管理</span>
+        </button>
+        <button class="rail__btn" data-route="market">
+          <span class="icon" data-icon="sparkles" data-size="16"></span>
+          <span class="rail__btn-label">市场</span>
+        </button>
+        <button class="rail__btn" data-route="targets">
+          <span class="icon" data-icon="target" data-size="16"></span>
+          <span class="rail__btn-label">agents</span>
+          <span class="rail__btn-count" id="nav-count-targets">0</span>
+        </button>
+        <button class="rail__btn" data-route="pending">
+          <span class="icon" data-icon="check" data-size="16"></span>
+          <span class="rail__btn-label">待办</span>
+          <span class="rail__btn-count" id="nav-count-pending">0</span>
+        </button>
+
+        <div class="rail__spacer"></div>
+
+        <button class="rail__btn rail__btn--bottom" data-route="settings">
+          <span class="icon" data-icon="settings" data-size="18"></span>
+          <span class="rail__btn-label">设置</span>
+          <span class="rail__btn-version">…</span>
+        </button>
+      </nav>
+
+      <!-- Main content -->
+      <main class="main">
+        <!-- View mount point -->
+        <div class="view" id="view-mount"></div>
+      </main>
+    </div>
+
+    <!-- Modal mount -->
+    <div class="modal-mount" id="modal-mount" hidden></div>
+
+    <!-- Toast container -->
+    <div class="toast-stack" id="toast-stack"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

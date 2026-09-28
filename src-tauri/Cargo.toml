@@ -1,0 +1,60 @@
+[package]
+name = "skill-dock"
+version = "0.1.0"
+description = "A unified skill manager for AI agent directories"
+authors = ["jacob"]
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+name = "skill_dock_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-shell = "2"
+tauri-plugin-process = "2"
+tauri-plugin-updater = "2"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+toml = "0.8"
+
+tokio = { version = "1", features = ["fs", "rt-multi-thread", "macros", "process", "io-util", "sync", "time"] }
+
+anyhow = "1"
+thiserror = "1"
+base64 = "0.22"
+
+dirs = "5"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+walkdir = "2"
+blake3 = "1"
+hex = "0.4"
+which = "8"
+notify = "6"
+notify-debouncer-full = "0.3"
+zip = { version = "2", default-features = false, features = ["deflate"] }
+once_cell = "1"
+parking_lot = "0.12"
+log = "0.4"
+env_logger = "0.11"
+tauri-plugin-single-instance = "2"
+
+[features]
+# this feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
